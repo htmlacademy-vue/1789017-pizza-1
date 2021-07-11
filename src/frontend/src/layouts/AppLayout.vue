@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import AppLayoutHeader from "./AppLayoutHeader";
-import Index from "@/views/Index";
+import AppLayoutHeader from "./AppLayoutHeader.vue";
+import Index from "@/views/Index.vue";
 
 export default {
   name: "AppLayout",
