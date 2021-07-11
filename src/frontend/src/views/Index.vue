@@ -10,14 +10,14 @@
 
             <div class="sheet__content dough">
               <label
-                v-for="(dough, i) in pizza.dough"
+                v-for="(dough, i) in constructor.dough"
                 :key="dough.name"
-                :class="`dough__input dough__input--${dough.typeCode}`"
+                :class="`dough__input dough__input--${dough.code}`"
               >
                 <input
                   type="radio"
                   name="dought"
-                  :value="dough.typeCode"
+                  :value="dough.code"
                   class="visually-hidden"
                   :checked="!i"
                 />
@@ -34,7 +34,7 @@
 
             <div class="sheet__content diameter">
               <label
-                v-for="size in pizza.sizes"
+                v-for="size in constructor.sizes"
                 :key="size.name"
                 :class="`diameter__input diameter__input--${size.code}`"
               >
@@ -62,7 +62,7 @@
                 <p>Основной соус:</p>
 
                 <label
-                  v-for="(sauce, i) in pizza.sauces"
+                  v-for="(sauce, i) in constructor.sauces"
                   :key="sauce.name"
                   class="radio ingridients__input"
                 >
@@ -81,7 +81,7 @@
 
                 <ul class="ingridients__list">
                   <li
-                    v-for="ingredient in pizza.ingredients"
+                    v-for="ingredient in constructor.ingredients"
                     :key="ingredient.name"
                     class="ingridients__item"
                   >
@@ -153,19 +153,13 @@
 </template>
 
 <script>
-import pizza from "@/static/pizza.json";
-import { pizzaNormalizers } from "@/common/helpers";
+import pizzaConstructorData from "@/static/pizza.json";
 
 export default {
   name: "Index",
   data() {
     return {
-      pizza: {
-        ...pizza,
-        dough: pizzaNormalizers.dough(pizza.dough),
-        ingredients: pizzaNormalizers.ingredients(pizza.ingredients),
-        sizes: pizzaNormalizers.sizes(pizza.sizes),
-      },
+      constructor: pizzaConstructorData,
     };
   },
 };
