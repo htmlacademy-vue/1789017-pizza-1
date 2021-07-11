@@ -158,11 +158,6 @@ import { pizzaNormalizers } from "@/common/helpers";
 
 export default {
   name: "Index",
-  created() {
-    console.log({ pizza });
-    console.log({ pizzaNormalizers });
-    console.log(this.pizza);
-  },
   data() {
     return {
       pizza: {
