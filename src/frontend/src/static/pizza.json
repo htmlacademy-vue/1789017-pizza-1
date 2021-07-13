@@ -35,10 +35,12 @@
   "sauces": [
     {
       "name": "Томатный",
+      "code": "tomato",
       "price": 50
     },
     {
       "name": "Сливочный",
+      "code": "creamy",
       "price": 50
     }
   ],

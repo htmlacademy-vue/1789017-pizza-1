@@ -51,6 +51,11 @@
           </div>
         </div>
 
+        <BuilderIngredientsSelector
+          :sauces="constructor.sauces"
+          :ingredients="constructor.ingredients"
+        ></BuilderIngredientsSelector>
+
         <div class="content__ingridients">
           <div class="sheet">
             <h2 class="title title--small sheet__title">
@@ -154,13 +159,37 @@
 
 <script>
 import pizzaConstructorData from "@/static/pizza.json";
+import BuilderIngredientsSelector from "@/modules/builder/components/BuilderIngredientsSelector";
 
 export default {
   name: "Index",
+  components: { BuilderIngredientsSelector },
+  created() {
+    console.log(this.pizza);
+  },
   data() {
     return {
       constructor: pizzaConstructorData,
+      pizza: {
+        name: "",
+        sauce: "",
+        size: "",
+        dough: "",
+        ingredients: pizzaConstructorData.ingredients.reduce(
+          (result, ingredient) => {
+            result[ingredient.code] = 0;
+            return result;
+          },
+          {}
+        ),
+      },
     };
+  },
+  methods: {
+    setIngredientCount({ code, count }) {
+      // todo validation
+      this.pizza.ingredients[code] = count;
+    },
   },
 };
 </script>
