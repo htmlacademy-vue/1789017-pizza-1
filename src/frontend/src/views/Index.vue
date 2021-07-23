@@ -3,58 +3,9 @@
     <form action="#" method="post">
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
+        <BuilderDoughSelector v-model="pizza.dough"></BuilderDoughSelector>
 
-        <div class="content__dough">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите тесто</h2>
-
-            <div class="sheet__content dough">
-              <label
-                v-for="(dough, i) in constructor.dough"
-                :key="dough.name"
-                :class="`dough__input dough__input--${dough.code}`"
-              >
-                <input
-                  type="radio"
-                  name="dought"
-                  :value="dough.code"
-                  class="visually-hidden"
-                  :checked="!i"
-                />
-                <b>{{ dough.name }}</b>
-                <span>{{ dough.description }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="content__diameter">
-          <div class="sheet">
-            <h2 class="title title--small sheet__title">Выберите размер</h2>
-
-            <div class="sheet__content diameter">
-              <label
-                v-for="size in constructor.sizes"
-                :key="size.name"
-                :class="`diameter__input diameter__input--${size.code}`"
-              >
-                <input
-                  type="radio"
-                  name="diameter"
-                  :value="size.code"
-                  class="visually-hidden"
-                  :checked="size.multiplier === 2"
-                />
-                <span>{{ size.name }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <BuilderIngredientsSelector
-          :sauces="constructor.sauces"
-          :ingredients="constructor.ingredients"
-        ></BuilderIngredientsSelector>
+        <BuilderSizeSelector v-model="pizza.size"></BuilderSizeSelector>
 
         <div class="content__ingridients">
           <div class="sheet">
@@ -63,93 +14,36 @@
             </h2>
 
             <div class="sheet__content ingridients">
-              <div class="ingridients__sauce">
-                <p>Основной соус:</p>
+              <BuilderSauceSelector
+                v-model="pizza.sauce"
+              ></BuilderSauceSelector>
 
-                <label
-                  v-for="(sauce, i) in constructor.sauces"
-                  :key="sauce.name"
-                  class="radio ingridients__input"
-                >
-                  <input
-                    type="radio"
-                    name="sauce"
-                    :value="sauce.name"
-                    :checked="!i"
-                  />
-                  <span>{{ sauce.name }}</span>
-                </label>
-              </div>
-
-              <div class="ingridients__filling">
-                <p>Начинка:</p>
-
-                <ul class="ingridients__list">
-                  <li
-                    v-for="ingredient in constructor.ingredients"
-                    :key="ingredient.name"
-                    class="ingridients__item"
-                  >
-                    <span :class="`filling filling--${ingredient.code}`">{{
-                      ingredient.name
-                    }}</span>
-
-                    <div class="counter counter--orange ingridients__counter">
-                      <button
-                        type="button"
-                        class="
-                          counter__button
-                          counter__button--disabled
-                          counter__button--minus
-                        "
-                      >
-                        <span class="visually-hidden">Меньше</span>
-                      </button>
-                      <input
-                        type="text"
-                        name="counter"
-                        class="counter__input"
-                        value="0"
-                      />
-                      <button
-                        type="button"
-                        class="counter__button counter__button--plus"
-                      >
-                        <span class="visually-hidden">Больше</span>
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+              <BuilderIngredientsSelector
+                v-model="pizza.ingredients"
+              ></BuilderIngredientsSelector>
             </div>
           </div>
         </div>
 
         <div class="content__pizza">
-          <label class="input">
-            <span class="visually-hidden">Название пиццы</span>
-            <input
-              type="text"
-              name="pizza_name"
-              placeholder="Введите название пиццы"
-            />
-          </label>
+          <TextInput
+            v-model="pizza.name"
+            @input="test"
+            label="Название пиццы"
+            placeholder="Введите название пиццы"
+          ></TextInput>
 
-          <div class="content__constructor">
-            <div class="pizza pizza--foundation--big-tomato">
-              <div class="pizza__wrapper">
-                <div class="pizza__filling pizza__filling--ananas"></div>
-                <div class="pizza__filling pizza__filling--bacon"></div>
-                <div class="pizza__filling pizza__filling--cheddar"></div>
-              </div>
-            </div>
-          </div>
+          <BuilderPizzaView
+            :pizza="pizza"
+            @addIngredient="addIngredient($event.code, 1)"
+          ></BuilderPizzaView>
 
           <div class="content__result">
-            <p>Итого: 0 ₽</p>
-            <button type="button" class="button button--disabled" disabled>
+            <BuilderPriceCounter :pizza="pizza"></BuilderPriceCounter>
+
+            <ButtonDefault :disabled="!readyForOrder">
               Готовьте!
-            </button>
+            </ButtonDefault>
           </div>
         </div>
       </div>
@@ -158,37 +52,57 @@
 </template>
 
 <script>
+import { MAX_SAME_INGREDIENT_COUNT } from "@/common/constants";
+import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
-import BuilderIngredientsSelector from "@/modules/builder/components/BuilderIngredientsSelector";
+import BuilderComponents from "@/modules/builder/components";
 
 export default {
   name: "Index",
-  components: { BuilderIngredientsSelector },
-  created() {
-    console.log(this.pizza);
+  components: {
+    ...BuilderComponents,
+    TextInput,
+    ButtonDefault,
   },
   data() {
     return {
       constructor: pizzaConstructorData,
       pizza: {
         name: "",
-        sauce: "",
-        size: "",
-        dough: "",
-        ingredients: pizzaConstructorData.ingredients.reduce(
-          (result, ingredient) => {
-            result[ingredient.code] = 0;
-            return result;
-          },
-          {}
-        ),
+        sauce: pizzaConstructorData.sauces?.[0]?.code || "",
+        size: pizzaConstructorData.sizes?.[0]?.code || "",
+        dough: pizzaConstructorData.dough?.[0]?.code || "",
+        ingredients: pizzaConstructorData.ingredients.map((ingredient) => ({
+          code: ingredient.code,
+          count: 0,
+        })),
       },
     };
   },
   methods: {
-    setIngredientCount({ code, count }) {
-      // todo validation
-      this.pizza.ingredients[code] = count;
+    addIngredient(code = "", quantity = 1) {
+      if (!code) return;
+      const ingredient = this.pizza.ingredients.find(
+        (ingredient) => ingredient.code === code
+      );
+      if (!ingredient) return;
+      let newIngredientQuantity = ingredient.count + quantity;
+      if (newIngredientQuantity < 0) newIngredientQuantity = 0;
+      if (newIngredientQuantity > MAX_SAME_INGREDIENT_COUNT)
+        newIngredientQuantity = MAX_SAME_INGREDIENT_COUNT;
+
+      ingredient.count = newIngredientQuantity;
+    },
+  },
+  computed: {
+    ingredientSelected() {
+      return !!this.pizza.ingredients.find(
+        (ingredient) => ingredient.count > 0
+      );
+    },
+
+    readyForOrder() {
+      return this.pizza.name.trim() && this.ingredientSelected;
     },
   },
 };

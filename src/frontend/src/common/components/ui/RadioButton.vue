@@ -1,6 +1,6 @@
 <template>
-  <label class="radio ingridients__input">
-    <input type="radio" name="sauce" :value="value" :checked="!i" />
+  <label class="radio ingridients__input" v-on="$listeners">
+    <input type="radio" :name="name" :value="value" :checked="selected" />
     <span>{{ label }}</span>
   </label>
 </template>
@@ -16,6 +16,14 @@ export default {
     label: {
       type: String,
       default: "",
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    selected: {
+      type: Boolean,
+      default: false,
     },
   },
 };
