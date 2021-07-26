@@ -15,9 +15,9 @@
       type="text"
       name="counter"
       class="counter__input"
-      :value="stateValue"
+      :value="value"
       @keypress="validateInput"
-      @input="setStateValue($event.target.value)"
+      @input="setValue($event.target.value)"
     />
     <button
       @click="addValue(step)"
@@ -54,30 +54,19 @@ export default {
       default: +Infinity,
     },
   },
-  data() {
-    return {
-      stateValue: 0,
-    };
-  },
-  created() {
-    this.setStateValue(this.value);
-  },
   methods: {
-    setStateValue(value = 0) {
-      this.stateValue = value; // for force reactivity redraw
+    setValue(value = 0) {
       !value && (value = 0);
-      value = value.toString().replace(/[^\d]/g, "");
       value = parseInt(value);
       value = this.fitLimits(value);
-      this.stateValue = value;
+      this.$emit("input", value);
+      this.$forceUpdate(); // for case when user enters value greater than max
     },
     fitLimits(value) {
       if (value < this.min) value = this.min;
       if (value > this.max) value = this.max;
-
       return value;
     },
-
     validateInput: function (e) {
       const charCode = e.keyCode;
       if (
@@ -89,26 +78,15 @@ export default {
       }
     },
     addValue(value = 0) {
-      if (this.valueInLimits(this.stateValue + value)) this.stateValue += value;
-    },
-    valueInLimits(value) {
-      return this.min <= value && value <= this.max;
+      this.$emit("input", this.fitLimits(this.value + value));
     },
   },
   computed: {
     inMaxValue() {
-      return this.max <= this.stateValue;
+      return this.max <= this.value;
     },
     inMinValue() {
-      return this.stateValue <= this.min;
-    },
-  },
-  watch: {
-    value() {
-      this.setStateValue(this.value);
-    },
-    stateValue(value) {
-      this.$emit("input", value);
+      return this.value <= this.min;
     },
   },
 };
