@@ -28,7 +28,6 @@
         <div class="content__pizza">
           <TextInput
             v-model="pizza.name"
-            @input="test"
             label="Название пиццы"
             placeholder="Введите название пиццы"
           ></TextInput>
