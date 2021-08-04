@@ -1,30 +1,22 @@
 <template>
   <main class="layout">
     <div class="layout__sidebar sidebar">
-      <a
-        href="index.html"
-        class="logo layout__logo"
-        @click.prevent="$router.push({ name: 'IndexHome' })"
-      >
+      <router-link class="logo layout__logo" :to="{ name: 'IndexHome' }">
         <img
           src="@/assets/img/logo.svg"
           alt="V!U!E! Pizza logo"
           width="90"
           height="40"
         />
-      </a>
-
-      <a
-        class="layout__link layout__link--active"
-        href="#"
-        @click.prevent="$router.push({ name: 'Orders' })"
-        >История заказов</a
-      >
-      <a
+      </router-link>
+      <router-link
         class="layout__link"
-        href="#"
-        @click.prevent="$router.push({ name: 'Profile' })"
-        >Мои данные</a
+        active-class="layout__link--active"
+        :to="{ name: 'Orders' }"
+        >История заказов</router-link
+      >
+      <router-link class="layout__link" :to="{ name: 'Profile' }"
+        >Мои данные</router-link
       >
     </div>
 

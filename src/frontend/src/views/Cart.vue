@@ -299,11 +299,10 @@
       </main>
       <section class="footer">
         <div class="footer__more">
-          <a
-            @click.prevent="$router.push({ name: 'IndexHome' })"
-            href="#"
+          <router-link
+            :to="{ name: 'IndexHome' }"
             class="button button--border button--arrow"
-            >Хочу еще одну</a
+            >Хочу еще одну</router-link
           >
         </div>
         <p class="footer__text">
