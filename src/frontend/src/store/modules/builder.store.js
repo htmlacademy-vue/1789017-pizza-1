@@ -1,5 +1,10 @@
 import * as types from "@/store/mutations-types";
 import { dough, sizes, sauces, ingredients } from "@/static/pizza.json";
+import { capitalize } from "@/common/helpers";
+import { UPDATE_PIZZA } from "@/store/mutations-types";
+
+const entity = "builder";
+const module = capitalize(entity);
 
 export default {
   namespaced: true,
@@ -16,20 +21,31 @@ export default {
     },
   },
   actions: {
-    async init({ dispatch }) {
-      return Promise.all([
+    async init({ dispatch, commit, state }) {
+      await Promise.all([
         dispatch("fetchDough"),
         dispatch("fetchSizes"),
         dispatch("fetchSauces"),
         dispatch("fetchIngredients"),
       ]);
+
+      // init pizza with default preselected values
+      commit(UPDATE_PIZZA, {
+        dough: state.dough?.[0]?.code,
+        size: state.sizes?.[0]?.code,
+        sauce: state.sauces?.[0]?.code,
+        ingredients: state.ingredients.map((ingredient) => ({
+          code: ingredient.code,
+          count: 0,
+        })),
+      });
     },
     async fetchDough({ commit }) {
       //todo API Call
       commit(
         types.SET_ENTITY,
         {
-          module: "Builder",
+          module,
           entity: "dough",
           value: dough,
         },
@@ -43,7 +59,7 @@ export default {
       commit(
         types.SET_ENTITY,
         {
-          module: "Builder",
+          module,
           entity: "sizes",
           value: sizes,
         },
@@ -57,7 +73,7 @@ export default {
       commit(
         types.SET_ENTITY,
         {
-          module: "Builder",
+          module,
           entity: "sauces",
           value: sauces,
         },
@@ -71,7 +87,7 @@ export default {
       commit(
         types.SET_ENTITY,
         {
-          module: "Builder",
+          module,
           entity: "ingredients",
           value: ingredients,
         },
@@ -79,6 +95,13 @@ export default {
           root: true,
         }
       );
+    },
+  },
+  mutations: {
+    [UPDATE_PIZZA](state, pizza) {
+      console.log(`upd `, pizza);
+      state.pizza = { ...state.pizza, ...pizza };
+      console.log(state.pizza);
     },
   },
 };
