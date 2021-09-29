@@ -4,9 +4,9 @@
     <form action="#" method="post">
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
-        <BuilderDoughSelector v-model="pizza.dough"></BuilderDoughSelector>
+        <BuilderDoughSelector></BuilderDoughSelector>
 
-        <BuilderSizeSelector v-model="pizza.size"></BuilderSizeSelector>
+        <BuilderSizeSelector></BuilderSizeSelector>
 
         <div class="content__ingridients">
           <div class="sheet">
@@ -15,28 +15,22 @@
             </h2>
 
             <div class="sheet__content ingridients">
-              <BuilderSauceSelector
-                v-model="pizza.sauce"
-              ></BuilderSauceSelector>
+              <BuilderSauceSelector></BuilderSauceSelector>
 
-              <BuilderIngredientsSelector
-                v-model="pizza.ingredients"
-              ></BuilderIngredientsSelector>
+              <BuilderIngredientsSelector></BuilderIngredientsSelector>
             </div>
           </div>
         </div>
 
         <div class="content__pizza">
           <TextInput
-            v-model="pizza.name"
+            @input="setPizzaName"
+            :value="pizza.name"
             label="Название пиццы"
             placeholder="Введите название пиццы"
           ></TextInput>
 
-          <BuilderPizzaView
-            :pizza="pizza"
-            @addIngredient="addIngredient($event.code, 1)"
-          ></BuilderPizzaView>
+          <BuilderPizzaView></BuilderPizzaView>
 
           <div class="content__result">
             <BuilderPriceCounter :pizza="pizza"></BuilderPriceCounter>
@@ -56,6 +50,8 @@ import { MAX_SAME_INGREDIENT_COUNT } from "@/common/constants";
 import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
 import BuilderComponents from "@/modules/builder/components";
+import { mapMutations, mapState } from "vuex";
+import { UPDATE_PIZZA } from "@/store/mutations-types";
 
 export default {
   name: "Index",
@@ -67,19 +63,12 @@ export default {
   data() {
     return {
       constructor: pizzaConstructorData,
-      pizza: {
-        name: "",
-        sauce: pizzaConstructorData.sauces?.[0]?.code || "",
-        size: pizzaConstructorData.sizes?.[0]?.code || "",
-        dough: pizzaConstructorData.dough?.[0]?.code || "",
-        ingredients: pizzaConstructorData.ingredients.map((ingredient) => ({
-          code: ingredient.code,
-          count: 0,
-        })),
-      },
     };
   },
   methods: {
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
     addIngredient(code = "", quantity = 1) {
       if (!code) return;
       const ingredient = this.pizza.ingredients.find(
@@ -93,6 +82,9 @@ export default {
 
       ingredient.count = newIngredientQuantity;
     },
+    setPizzaName(name = "") {
+      this.updatePizza({ name });
+    },
   },
   computed: {
     ingredientSelected() {
@@ -104,6 +96,10 @@ export default {
     readyForOrder() {
       return this.pizza.name.trim() && this.ingredientSelected;
     },
+
+    ...mapState("Builder", {
+      pizza: "pizza",
+    }),
   },
 };
 </script>

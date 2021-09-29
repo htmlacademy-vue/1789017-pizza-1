@@ -1,7 +1,7 @@
 import * as types from "@/store/mutations-types";
 import { dough, sizes, sauces, ingredients } from "@/static/pizza.json";
 import { capitalize } from "@/common/helpers";
-import { UPDATE_PIZZA } from "@/store/mutations-types";
+import { UPDATE_PIZZA, UPDATE_PIZZA_INGREDIENT } from "@/store/mutations-types";
 
 const entity = "builder";
 const module = capitalize(entity);
@@ -14,6 +14,7 @@ export default {
     sauces: [],
     ingredients: [],
     pizza: {
+      name: "",
       sauce: "",
       dough: "",
       size: "",
@@ -99,9 +100,15 @@ export default {
   },
   mutations: {
     [UPDATE_PIZZA](state, pizza) {
-      console.log(`upd `, pizza);
       state.pizza = { ...state.pizza, ...pizza };
-      console.log(state.pizza);
+    },
+    [UPDATE_PIZZA_INGREDIENT](state, ingredient) {
+      const index = state.pizza.ingredients.findIndex(
+        ({ code }) => code === ingredient.code
+      );
+      if (~index) {
+        state.pizza.ingredients.splice(index, 1, ingredient);
+      }
     },
   },
 };

@@ -59,7 +59,7 @@ export default {
       !value && (value = 0);
       value = parseInt(value);
       value = this.fitLimits(value);
-      this.$emit("input", value);
+      if (value !== this.value) this.$emit("input", value);
       this.$forceUpdate(); // for case when user enters value greater than max
     },
     fitLimits(value) {
@@ -78,7 +78,8 @@ export default {
       }
     },
     addValue(value = 0) {
-      this.$emit("input", this.fitLimits(this.value + value));
+      const newValue = this.fitLimits(this.value + value);
+      if (newValue !== this.value) this.$emit("input", newValue);
     },
   },
   computed: {

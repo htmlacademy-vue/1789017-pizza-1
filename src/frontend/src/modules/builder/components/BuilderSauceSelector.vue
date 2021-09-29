@@ -2,33 +2,40 @@
   <div class="ingridients__sauce">
     <p>Основной соус:</p>
     <RadioButton
-      v-for="sauce in sauces"
+      v-for="sauce in enumSauces"
       :key="sauce.code"
       :value="sauce.code"
       :label="sauce.name"
-      :selected="sauce.code === value"
+      :selected="sauce.code === selectedSauce"
       name="sauce"
-      @click.prevent="$emit('input', sauce.code)"
+      @click.prevent="setPizzaSauce(sauce.code)"
     ></RadioButton>
   </div>
 </template>
 
 <script>
-import { sauces } from "@/static/pizza.json";
+import { UPDATE_PIZZA } from "@/store/mutations-types";
 import { RadioButton } from "@/common/components/ui";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "BuilderSauceSelector",
   components: { RadioButton },
-  data() {
-    return {
-      sauces,
-    };
+  computed: {
+    ...mapState("Builder", {
+      enumSauces: "sauces",
+      pizza: "pizza",
+    }),
+    selectedSauce() {
+      return this.pizza?.sauce;
+    },
   },
-  props: {
-    value: {
-      type: String,
-      default: () => [],
+  methods: {
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
+    setPizzaSauce(code) {
+      this.updatePizza({ sauce: code });
     },
   },
 };

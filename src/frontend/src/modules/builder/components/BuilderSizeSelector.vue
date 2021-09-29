@@ -5,15 +5,15 @@
 
       <div class="sheet__content diameter">
         <label
-          v-for="size in enumSize"
+          v-for="size in enumSizes"
           :key="size.code"
           :class="`diameter__input diameter__input--${size.code}`"
         >
           <input
             type="radio"
             name="diameter"
-            :value="size.code"
-            v-model="selectedCode"
+            :checked="selectedSize === size.code"
+            @click="setPizzaSize(size.code)"
             class="visually-hidden"
           />
           <span>{{ size.name }}</span>
@@ -24,31 +24,26 @@
 </template>
 
 <script>
-import { sizes } from "@/static/pizza.json";
+import { UPDATE_PIZZA } from "@/store/mutations-types";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   name: "BuilderSizeSelector",
-  props: {
-    value: {
-      type: String,
-      required: true,
+  computed: {
+    ...mapState("Builder", {
+      enumSizes: "sizes",
+      pizza: "pizza",
+    }),
+    selectedSize() {
+      return this.pizza?.size;
     },
   },
-  created() {
-    this.selectedCode = this.value;
-  },
-  data() {
-    return {
-      selectedCode: "",
-      enumSize: sizes,
-    };
-  },
-  watch: {
-    value() {
-      this.selectedCode = this.value;
-    },
-    selectedCode() {
-      this.$emit("input", this.selectedCode);
+  methods: {
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
+    setPizzaSize(code) {
+      this.updatePizza({ size: code });
     },
   },
 };

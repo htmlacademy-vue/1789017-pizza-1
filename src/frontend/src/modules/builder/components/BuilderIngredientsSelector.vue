@@ -3,7 +3,7 @@
     <p>Начинка:</p>
     <ul class="ingridients__list">
       <li
-        v-for="ingredient in pizzaIngredients"
+        v-for="ingredient in pizza.ingredients"
         :key="ingredient.code"
         class="ingridients__item"
       >
@@ -16,8 +16,8 @@
           }}</span>
         </AppDrag>
         <ItemCounter
-          v-model="ingredient.count"
-          @input="$emit('input', pizzaIngredients)"
+          :value="ingredient.count"
+          @input="setPizzaIngredient({ code: ingredient.code, count: $event })"
           :min="0"
           :max="MAX_SAME_INGREDIENT_COUNT"
         ></ItemCounter>
@@ -27,51 +27,45 @@
 </template>
 
 <script>
-import { ingredients } from "@/static/pizza.json";
 import { ItemCounter } from "@/common/components/ui";
 import { AppDrag } from "@/common/components/behavior";
 import { MAX_SAME_INGREDIENT_COUNT } from "@/common/constants";
+import { mapState, mapMutations } from "vuex";
+import { UPDATE_PIZZA, UPDATE_PIZZA_INGREDIENT } from "@/store/mutations-types";
 
 export default {
   name: "BuilderIngredientsSelector",
   components: { ItemCounter, AppDrag },
-  props: {
-    value: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  created() {
-    // create local copy to avoid parent state mutation
-    this.syncParent();
-  },
   data() {
     return {
-      ingredients,
-      pizzaIngredients: [],
       MAX_SAME_INGREDIENT_COUNT,
     };
   },
+  computed: {
+    ...mapState("Builder", {
+      enumIngredients: "ingredients",
+      pizza: "pizza",
+    }),
+    selectedSize() {
+      return this.pizza?.size;
+    },
+  },
   methods: {
+    ...mapMutations("Builder", {
+      setPizzaIngredient: UPDATE_PIZZA_INGREDIENT,
+    }),
+
     ingredientDetails(code = "") {
-      return this.ingredients.find((ingredient) => ingredient.code === code);
+      return this.enumIngredients.find(
+        (ingredient) => ingredient.code === code
+      );
     },
     ingredientName(code = "") {
       return this.ingredientDetails(code)?.name;
     },
-    syncParent() {
-      this.pizzaIngredients = this.value.map((ingredient) => ({
-        ...ingredient,
-      }));
-    },
-  },
-  watch: {
-    value: {
-      handler() {
-        this.syncParent();
-      },
-      deep: true,
-    },
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
   },
 };
 </script>

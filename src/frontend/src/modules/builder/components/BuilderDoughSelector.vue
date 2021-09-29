@@ -30,12 +30,6 @@ import { UPDATE_PIZZA } from "@/store/mutations-types";
 
 export default {
   name: "BuilderDoughSelector",
-  props: {
-    value: {
-      type: String,
-      required: true,
-    },
-  },
   data() {
     return {
       selectedCode: "light",
