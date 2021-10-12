@@ -3,30 +3,23 @@
 </template>
 
 <script>
-import { dough, sauces, sizes, ingredients } from "@/static/pizza.json";
+import { mapState } from "vuex";
 
 export default {
   name: "BuilderPriceCounter",
-  props: {
-    pizza: {
-      type: Object,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      doughEnum: dough,
-      saucesEnum: sauces,
-      sizeEnum: sizes,
-      ingredientsEnum: ingredients,
-    };
-  },
   methods: {
     itemByCode(list = [], code = "") {
       return list.find((item) => item.code === code);
     },
   },
   computed: {
+    ...mapState("Builder", {
+      pizza: "pizza",
+      doughEnum: "dough",
+      ingredientsEnum: "ingredients",
+      sizeEnum: "sizes",
+      saucesEnum: "sauces",
+    }),
     doughPrice() {
       return this.itemByCode(this.doughEnum, this.pizza.dough)?.price || 0;
     },

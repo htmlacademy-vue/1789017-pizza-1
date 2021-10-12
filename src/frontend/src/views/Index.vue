@@ -33,7 +33,7 @@
           <BuilderPizzaView></BuilderPizzaView>
 
           <div class="content__result">
-            <BuilderPriceCounter :pizza="pizza"></BuilderPriceCounter>
+            <BuilderPriceCounter></BuilderPriceCounter>
 
             <ButtonDefault :disabled="!readyForOrder">
               Готовьте!
@@ -46,7 +46,6 @@
 </template>
 
 <script>
-import { MAX_SAME_INGREDIENT_COUNT } from "@/common/constants";
 import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
 import BuilderComponents from "@/modules/builder/components";
@@ -69,19 +68,6 @@ export default {
     ...mapMutations("Builder", {
       updatePizza: UPDATE_PIZZA,
     }),
-    addIngredient(code = "", quantity = 1) {
-      if (!code) return;
-      const ingredient = this.pizza.ingredients.find(
-        (ingredient) => ingredient.code === code
-      );
-      if (!ingredient) return;
-      let newIngredientQuantity = ingredient.count + quantity;
-      if (newIngredientQuantity < 0) newIngredientQuantity = 0;
-      if (newIngredientQuantity > MAX_SAME_INGREDIENT_COUNT)
-        newIngredientQuantity = MAX_SAME_INGREDIENT_COUNT;
-
-      ingredient.count = newIngredientQuantity;
-    },
     setPizzaName(name = "") {
       this.updatePizza({ name });
     },
