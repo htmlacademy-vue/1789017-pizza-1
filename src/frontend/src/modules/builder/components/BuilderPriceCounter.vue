@@ -7,11 +7,6 @@ import { mapState } from "vuex";
 
 export default {
   name: "BuilderPriceCounter",
-  methods: {
-    itemByCode(list = [], code = "") {
-      return list.find((item) => item.code === code);
-    },
-  },
   computed: {
     ...mapState("Builder", {
       pizza: "pizza",

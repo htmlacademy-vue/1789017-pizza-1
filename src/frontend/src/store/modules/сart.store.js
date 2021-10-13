@@ -1,4 +1,11 @@
 export default {
   namespaced: true,
-  state: {},
+  state: {
+    pizzaItems: [],
+    miscItems: [],
+    delivery: {
+      method: "",
+      phone: "",
+    },
+  },
 };

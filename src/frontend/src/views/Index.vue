@@ -33,9 +33,8 @@
           <BuilderPizzaView></BuilderPizzaView>
 
           <div class="content__result">
-            <BuilderPriceCounter></BuilderPriceCounter>
-
-            <ButtonDefault :disabled="!readyForOrder">
+            <p>Итого: {{ pizzaPrice }} ₽</p>
+            <ButtonDefault :disabled="!readyForOrder" @click="addPizzaToCart">
               Готовьте!
             </ButtonDefault>
           </div>
@@ -49,8 +48,8 @@
 import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
 import BuilderComponents from "@/modules/builder/components";
-import { mapMutations, mapState } from "vuex";
-import { UPDATE_PIZZA } from "@/store/mutations-types";
+import { mapMutations, mapState, mapGetters } from "vuex";
+import { UPDATE_PIZZA, ADD_ENTITY } from "@/store/mutations-types";
 
 export default {
   name: "Index",
@@ -68,11 +67,35 @@ export default {
     ...mapMutations("Builder", {
       updatePizza: UPDATE_PIZZA,
     }),
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
     setPizzaName(name = "") {
       this.updatePizza({ name });
     },
+    addPizzaToCart() {
+      this.$store.commit(
+        ADD_ENTITY,
+        {
+          entity: "pizzaItems",
+          module: "Cart",
+          value: {
+            id: this.pizza.id,
+            count: 1,
+            pizza: this.pizza,
+            price: this.pizzaPrice,
+          },
+        },
+        { root: true }
+      );
+      this.$router.push({ name: "Cart" });
+    },
   },
   computed: {
+    ...mapGetters("Builder", {
+      pizzaPrice: "price",
+    }),
+
     ingredientSelected() {
       return !!this.pizza.ingredients.find(
         (ingredient) => ingredient.count > 0
