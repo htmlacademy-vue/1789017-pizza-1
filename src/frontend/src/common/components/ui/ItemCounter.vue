@@ -1,5 +1,5 @@
 <template>
-  <div class="counter counter--orange ingridients__counter">
+  <div class="counter">
     <button
       @click="addValue(-1 * step)"
       type="button"
@@ -25,6 +25,7 @@
       :class="[
         'counter__button',
         'counter__button--plus',
+        variantClass,
         { 'counter__button--disabled': inMaxValue },
       ]"
     >
@@ -52,6 +53,10 @@ export default {
     max: {
       type: Number,
       default: +Infinity,
+    },
+    variant: {
+      type: String,
+      default: "",
     },
   },
   methods: {
@@ -88,6 +93,12 @@ export default {
     },
     inMinValue() {
       return this.value <= this.min;
+    },
+    variantClass() {
+      if (!this.variant) return "";
+      return {
+        orange: "counter__button--orange",
+      }[this.variant];
     },
   },
 };

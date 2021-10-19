@@ -34,7 +34,7 @@
 
           <div class="content__result">
             <p>Итого: {{ pizzaPrice }} ₽</p>
-            <ButtonDefault :disabled="!readyForOrder" @click="addPizzaToCart">
+            <ButtonDefault :disabled="!readyForOrder" @click="goCart">
               Готовьте!
             </ButtonDefault>
           </div>
@@ -49,7 +49,11 @@ import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
 import BuilderComponents from "@/modules/builder/components";
 import { mapMutations, mapState, mapGetters } from "vuex";
-import { UPDATE_PIZZA, ADD_ENTITY } from "@/store/mutations-types";
+import {
+  UPDATE_PIZZA,
+  ADD_ENTITY,
+  UPDATE_ENTITY,
+} from "@/store/mutations-types";
 
 export default {
   name: "Index",
@@ -67,27 +71,32 @@ export default {
     ...mapMutations("Builder", {
       updatePizza: UPDATE_PIZZA,
     }),
-    ...mapMutations("Builder", {
-      updatePizza: UPDATE_PIZZA,
-    }),
     setPizzaName(name = "") {
       this.updatePizza({ name });
     },
-    addPizzaToCart() {
-      this.$store.commit(
-        ADD_ENTITY,
-        {
-          entity: "pizzaItems",
-          module: "Cart",
-          value: {
-            id: this.pizza.id,
-            count: 1,
-            pizza: this.pizza,
-            price: this.pizzaPrice,
-          },
+    goCart() {
+      const cartItem = this.getCartPizzaItem(this.pizza.id);
+      const payload = {
+        entity: "pizzaItems",
+        module: "Cart",
+        value: {
+          id: this.pizza.id,
+          count: 1,
+          pizza: this.pizza,
+          price: this.pizzaPrice,
         },
-        { root: true }
-      );
+      };
+
+      if (cartItem) {
+        payload.value = {
+          ...cartItem,
+          ...{ pizza: this.pizza, price: this.pizzaPrice },
+        };
+        this.$store.commit(UPDATE_ENTITY, payload, { root: true });
+      } else {
+        this.$store.commit(ADD_ENTITY, payload, { root: true });
+      }
+
       this.$router.push({ name: "Cart" });
     },
   },
@@ -95,7 +104,9 @@ export default {
     ...mapGetters("Builder", {
       pizzaPrice: "price",
     }),
-
+    ...mapGetters("Cart", {
+      getCartPizzaItem: "cartPizzaItemById",
+    }),
     ingredientSelected() {
       return !!this.pizza.ingredients.find(
         (ingredient) => ingredient.count > 0

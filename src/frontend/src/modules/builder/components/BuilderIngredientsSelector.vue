@@ -16,6 +16,7 @@
           }}</span>
         </AppDrag>
         <ItemCounter
+          class="counter--orange ingridients__counter"
           :value="ingredient.count"
           @input="setPizzaIngredient({ code: ingredient.code, count: $event })"
           :min="0"

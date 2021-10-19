@@ -31,7 +31,7 @@
           Перейти к конструктору<br />чтоб собрать ещё одну пиццу
         </p>
         <div class="footer__price">
-          <b>Итого: 2 228 ₽</b>
+          <b>Итого: {{ totalCost }} ₽</b>
         </div>
 
         <div class="footer__submit">
@@ -44,7 +44,7 @@
 
 <script>
 import CartComponents from "@/modules/cart/components";
-import { mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { RESET_PIZZA } from "@/store/mutations-types";
 
 export default {
@@ -55,6 +55,11 @@ export default {
   methods: {
     ...mapMutations("Builder", {
       resetBuilder: RESET_PIZZA,
+    }),
+  },
+  computed: {
+    ...mapGetters("Cart", {
+      totalCost: "cost",
     }),
   },
 };

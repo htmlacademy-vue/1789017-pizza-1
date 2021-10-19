@@ -1,6 +1,6 @@
 import * as types from "@/store/mutations-types";
 import { dough, sizes, sauces, ingredients } from "@/static/pizza.json";
-import { capitalize, createUUIDv4 } from "@/common/helpers";
+import { capitalize, createUUIDv4, itemByCode } from "@/common/helpers";
 import {
   UPDATE_PIZZA,
   UPDATE_PIZZA_INGREDIENT,
@@ -11,6 +11,7 @@ const entity = "builder";
 const module = capitalize(entity);
 
 const setupPizza = () => ({
+  id: createUUIDv4(),
   name: "",
   sauce: "",
   dough: "",
@@ -124,10 +125,6 @@ export default {
   },
   getters: {
     price(state) {
-      function itemByCode(list = [], code = "") {
-        return list.find((item) => item.code === code);
-      }
-
       const doughPrice = itemByCode(state.dough, state.pizza.dough)?.price || 0;
       const saucePrice =
         itemByCode(state.sauces, state.pizza.sauce)?.price || 0;
