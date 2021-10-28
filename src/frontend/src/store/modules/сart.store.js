@@ -1,13 +1,49 @@
-import { SET_CART_ITEM_COUNT, SET_CART_ITEM_PIZZA } from "../mutations-types";
+import * as types from "@/store/mutations-types";
+import misc from "@/static/misc.json";
+
+import {
+  SET_CART_ITEM_COUNT,
+  SET_CART_ITEM_PIZZA,
+  RESET_CART,
+} from "../mutations-types";
+import { capitalize } from "@/common/helpers";
+
+const entity = "cart";
+const module = capitalize(entity);
+
+const setupCart = () => ({
+  misc: [],
+  pizzaItems: [],
+  miscItems: [],
+  delivery: {
+    method: "",
+    phone: "",
+  },
+});
 
 export default {
   namespaced: true,
-  state: {
-    pizzaItems: [],
-    miscItems: [],
-    delivery: {
-      method: "",
-      phone: "",
+  state: setupCart(),
+  actions: {
+    async init({ dispatch, commit }) {
+      await Promise.all([dispatch("fetchMisc")]);
+
+      // init pizza with default preselected values
+      commit(RESET_CART);
+    },
+    async fetchMisc({ commit }) {
+      //todo API Call
+      commit(
+        types.SET_ENTITY,
+        {
+          module,
+          entity: "misc",
+          value: misc,
+        },
+        {
+          root: true,
+        }
+      );
     },
   },
   mutations: {
@@ -25,6 +61,14 @@ export default {
         const curItem = state[entity][index];
         state[entity].splice(index, 1, { ...curItem, ...{ count } });
       }
+    },
+    [RESET_CART](state) {
+      state.pizzaItems = [];
+      state.miscItems = state.misc.map((item) => ({
+        id: item.code,
+        count: 0,
+        price: item.price,
+      }));
     },
   },
   getters: {
