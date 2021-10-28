@@ -11,7 +11,7 @@
       </router-link>
     </div>
     <div class="header__cart">
-      <router-link :to="{ name: 'Cart' }">0 ₽</router-link>
+      <router-link :to="{ name: 'Cart' }">{{ cost }} ₽</router-link>
     </div>
     <div class="header__user">
       <router-link v-if="authorized" :to="{ name: 'Profile' }">
@@ -26,12 +26,12 @@
           <img
             src="img/users/user5.jpg"
             srcset="img/users/user5@2x.jpg"
-            alt="Василий Ложкин"
+            :alt="user.name"
             width="32"
             height="32"
           />
         </picture>
-        <span>Василий Ложкин</span>
+        <span>{{ user.name }}</span>
       </router-link>
 
       <router-link
@@ -41,19 +41,25 @@
       >
         <span>Войти</span></router-link
       >
-      <a v-else href="#" class="header__logout"><span>Выйти</span></a>
+      <a v-else href="#" class="header__logout" @click="logout"
+        ><span>Выйти</span></a
+      >
     </div>
   </header>
 </template>
 
 <script>
+import { mapActions, mapState, mapGetters } from "vuex";
+
 export default {
   name: "AppLayoutDefaultHeader",
   computed: {
-    // todo real user authorization detection
-    authorized() {
-      return ["Cart", "Orders", "Profile"].includes(this.$route.name);
-    },
+    ...mapState("Auth", ["user"]),
+    ...mapGetters("Auth", ["authorized"]),
+    ...mapGetters("Cart", ["cost"]),
+  },
+  methods: {
+    ...mapActions("Auth", ["logout"]),
   },
 };
 </script>

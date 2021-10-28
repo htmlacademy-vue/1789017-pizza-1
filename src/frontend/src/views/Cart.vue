@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form action="test.html" method="post" class="layout-form">
+    <form action="test.html" method="post" class="layout-form" @submit.prevent>
       <main class="content cart">
         <div class="container">
           <div class="cart__title">
@@ -35,32 +35,60 @@
         </div>
 
         <div class="footer__submit">
-          <button type="submit" class="button">Оформить заказ</button>
+          <button type="submit" class="button" @click="placeOrder">
+            Оформить заказ
+          </button>
         </div>
       </section>
     </form>
+    <CartOrderPlacedPopup
+      :show="succOrderPopupShown"
+      @close="onSuccOrderPopupClose"
+    />
   </div>
 </template>
 
 <script>
 import CartComponents from "@/modules/cart/components";
-import { mapGetters, mapMutations } from "vuex";
-import { RESET_PIZZA } from "@/store/mutations-types";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { RESET_PIZZA, RESET_CART } from "@/store/mutations-types";
 
 export default {
   name: "Cart",
   components: {
     ...CartComponents,
   },
+  data() {
+    return {
+      succOrderPopupShown: false,
+    };
+  },
   methods: {
     ...mapMutations("Builder", {
       resetBuilder: RESET_PIZZA,
     }),
+    ...mapMutations("Cart", {
+      resetCart: RESET_CART,
+    }),
+    ...mapActions("Orders", ["makeOrder"]),
+    async placeOrder() {
+      await this.makeOrder();
+      this.succOrderPopupShown = true;
+    },
+    onSuccOrderPopupClose() {
+      this.resetCart();
+      this.resetBuilder();
+      this.succOrderPopupShown = false;
+      if (this.authorized)
+        this.$router.push({ name: "Orders" }).catch(console.log);
+      else this.$router.push({ name: "IndexHome" }).catch(console.log);
+    },
   },
   computed: {
     ...mapGetters("Cart", {
       totalCost: "cost",
     }),
+    ...mapGetters("Auth", ["authorized"]),
   },
 };
 </script>

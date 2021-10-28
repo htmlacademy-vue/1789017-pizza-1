@@ -1,4 +1,11 @@
 export default {
   namespaced: true,
-  state: {},
+  state: {
+    orders: [],
+  },
+  actions: {
+    async makeOrder() {
+      // todo api call
+    },
+  },
 };

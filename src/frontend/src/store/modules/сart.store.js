@@ -5,6 +5,10 @@ import {
   SET_CART_ITEM_COUNT,
   SET_CART_ITEM_PIZZA,
   RESET_CART,
+  SET_CART_DELIVERY_METHOD,
+  SET_CART_PHONE,
+  SET_CART_ADDRESS,
+  RESET_CART_ADDRESS,
 } from "../mutations-types";
 import { capitalize } from "@/common/helpers";
 
@@ -16,8 +20,16 @@ const setupCart = () => ({
   pizzaItems: [],
   miscItems: [],
   delivery: {
-    method: "",
+    method: "own",
     phone: "",
+    address: {
+      id: 0,
+      name: "",
+      street: "",
+      building: "",
+      flat: "",
+      comment: "",
+    },
   },
 });
 
@@ -62,6 +74,18 @@ export default {
         state[entity].splice(index, 1, { ...curItem, ...{ count } });
       }
     },
+    [SET_CART_DELIVERY_METHOD](state, method) {
+      state.delivery.method = method;
+    },
+    [SET_CART_PHONE](state, phone) {
+      state.delivery.phone = phone;
+    },
+    [SET_CART_ADDRESS](state, address) {
+      state.delivery.address = address;
+    },
+    [RESET_CART_ADDRESS](state) {
+      state.delivery.address = setupCart().delivery.address;
+    },
     [RESET_CART](state) {
       state.pizzaItems = [];
       state.miscItems = state.misc.map((item) => ({
@@ -69,6 +93,7 @@ export default {
         count: 0,
         price: item.price,
       }));
+      state.delivery = setupCart().delivery;
     },
   },
   getters: {
@@ -88,6 +113,17 @@ export default {
         0
       );
       return pizzaItemsCost + miscItemsCost;
+    },
+
+    deliveryMethod(state) {
+      return state.delivery.method;
+    },
+
+    deliveryPhone(state) {
+      return state.delivery.phone;
+    },
+    deliveryAddress(state) {
+      return state.delivery.address;
     },
   },
 };
