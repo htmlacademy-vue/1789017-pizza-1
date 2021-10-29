@@ -1,5 +1,5 @@
 <template>
-  <div class="counter counter--orange ingridients__counter">
+  <div class="counter">
     <button
       @click="addValue(-1 * step)"
       type="button"
@@ -25,6 +25,7 @@
       :class="[
         'counter__button',
         'counter__button--plus',
+        variantClass,
         { 'counter__button--disabled': inMaxValue },
       ]"
     >
@@ -53,13 +54,17 @@ export default {
       type: Number,
       default: +Infinity,
     },
+    variant: {
+      type: String,
+      default: "",
+    },
   },
   methods: {
     setValue(value = 0) {
       !value && (value = 0);
       value = parseInt(value);
       value = this.fitLimits(value);
-      this.$emit("input", value);
+      if (value !== this.value) this.$emit("input", value);
       this.$forceUpdate(); // for case when user enters value greater than max
     },
     fitLimits(value) {
@@ -78,7 +83,8 @@ export default {
       }
     },
     addValue(value = 0) {
-      this.$emit("input", this.fitLimits(this.value + value));
+      const newValue = this.fitLimits(this.value + value);
+      if (newValue !== this.value) this.$emit("input", newValue);
     },
   },
   computed: {
@@ -87,6 +93,12 @@ export default {
     },
     inMinValue() {
       return this.value <= this.min;
+    },
+    variantClass() {
+      if (!this.variant) return "";
+      return {
+        orange: "counter__button--orange",
+      }[this.variant];
     },
   },
 };

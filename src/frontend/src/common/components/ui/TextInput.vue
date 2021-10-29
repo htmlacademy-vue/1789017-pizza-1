@@ -1,7 +1,14 @@
 <template>
   <label class="input">
     <span class="visually-hidden">{{ label }}</span>
-    <input type="text" :name="name" :placeholder="placeholder" v-model="val" />
+    <input
+      :class="{ disabled }"
+      type="text"
+      :name="name"
+      :placeholder="placeholder"
+      v-model="val"
+      :disabled="disabled"
+    />
   </label>
 </template>
 
@@ -25,6 +32,10 @@ export default {
       type: String,
       default: "",
     },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   created() {
     this.val = this.value;
@@ -45,4 +56,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.disabled {
+  background-color: lightgray;
+}
+</style>

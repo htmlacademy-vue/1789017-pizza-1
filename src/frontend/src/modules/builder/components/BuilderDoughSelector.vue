@@ -12,8 +12,8 @@
           <input
             type="radio"
             name="dought"
-            :value="dough.code"
-            v-model="selectedCode"
+            :checked="selectedDough === dough.code"
+            @click="setPizzaDough(dough.code)"
             class="visually-hidden"
           />
           <b>{{ dough.name }}</b>
@@ -25,31 +25,31 @@
 </template>
 
 <script>
-import { dough } from "@/static/pizza.json";
+import { mapState, mapMutations } from "vuex";
+import { UPDATE_PIZZA } from "@/store/mutations-types";
 
 export default {
   name: "BuilderDoughSelector",
-  props: {
-    value: {
-      type: String,
-      required: true,
-    },
-  },
-  created() {
-    this.selectedCode = this.value;
-  },
   data() {
     return {
-      selectedCode: "",
-      enumDough: dough,
+      selectedCode: "light",
     };
   },
-  watch: {
-    value() {
-      this.selectedCode = this.value;
+  computed: {
+    ...mapState("Builder", {
+      enumDough: "dough",
+      pizza: "pizza",
+    }),
+    selectedDough() {
+      return this.pizza?.dough;
     },
-    selectedCode() {
-      this.$emit("input", this.selectedCode);
+  },
+  methods: {
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
+    setPizzaDough(code) {
+      this.updatePizza({ dough: code });
     },
   },
 };

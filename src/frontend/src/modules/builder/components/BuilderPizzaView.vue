@@ -1,6 +1,6 @@
 <template>
   <div class="content__constructor">
-    <AppDrop @drop="$emit('addIngredient', $event)">
+    <AppDrop @drop="addIngredient($event)">
       <div
         :class="`pizza pizza--foundation--${doughNormalized}-${pizza.sauce}`"
       >
@@ -18,17 +18,17 @@
 
 <script>
 import { AppDrop } from "@/common/components/behavior";
+import { mapMutations, mapState } from "vuex";
+import { UPDATE_PIZZA_INGREDIENT } from "@/store/mutations-types";
 
 export default {
   name: "BuilderPizzaView",
-  props: {
-    pizza: {
-      type: Object,
-      required: true,
-    },
-  },
   components: { AppDrop },
   computed: {
+    ...mapState("Builder", {
+      pizza: "pizza",
+    }),
+
     /**
      * Converting dough codes
      * */
@@ -57,6 +57,14 @@ export default {
       });
 
       return res;
+    },
+  },
+  methods: {
+    ...mapMutations("Builder", {
+      setPizzaIngredient: UPDATE_PIZZA_INGREDIENT,
+    }),
+    addIngredient({ code }) {
+      this.setPizzaIngredient({ code, count: 1 });
     },
   },
 };

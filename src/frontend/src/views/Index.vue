@@ -4,9 +4,9 @@
     <form action="#" method="post">
       <div class="content__wrapper">
         <h1 class="title title--big">Конструктор пиццы</h1>
-        <BuilderDoughSelector v-model="pizza.dough"></BuilderDoughSelector>
+        <BuilderDoughSelector></BuilderDoughSelector>
 
-        <BuilderSizeSelector v-model="pizza.size"></BuilderSizeSelector>
+        <BuilderSizeSelector></BuilderSizeSelector>
 
         <div class="content__ingridients">
           <div class="sheet">
@@ -15,33 +15,26 @@
             </h2>
 
             <div class="sheet__content ingridients">
-              <BuilderSauceSelector
-                v-model="pizza.sauce"
-              ></BuilderSauceSelector>
+              <BuilderSauceSelector></BuilderSauceSelector>
 
-              <BuilderIngredientsSelector
-                v-model="pizza.ingredients"
-              ></BuilderIngredientsSelector>
+              <BuilderIngredientsSelector></BuilderIngredientsSelector>
             </div>
           </div>
         </div>
 
         <div class="content__pizza">
           <TextInput
-            v-model="pizza.name"
+            @input="setPizzaName"
+            :value="pizza.name"
             label="Название пиццы"
             placeholder="Введите название пиццы"
           ></TextInput>
 
-          <BuilderPizzaView
-            :pizza="pizza"
-            @addIngredient="addIngredient($event.code, 1)"
-          ></BuilderPizzaView>
+          <BuilderPizzaView></BuilderPizzaView>
 
           <div class="content__result">
-            <BuilderPriceCounter :pizza="pizza"></BuilderPriceCounter>
-
-            <ButtonDefault :disabled="!readyForOrder">
+            <p>Итого: {{ pizzaPrice }} ₽</p>
+            <ButtonDefault :disabled="!readyForOrder" @click="goCart">
               Готовьте!
             </ButtonDefault>
           </div>
@@ -52,10 +45,15 @@
 </template>
 
 <script>
-import { MAX_SAME_INGREDIENT_COUNT } from "@/common/constants";
 import { TextInput, ButtonDefault } from "@/common/components/ui";
 import pizzaConstructorData from "@/static/pizza.json";
 import BuilderComponents from "@/modules/builder/components";
+import { mapMutations, mapState, mapGetters } from "vuex";
+import {
+  UPDATE_PIZZA,
+  ADD_ENTITY,
+  UPDATE_ENTITY,
+} from "@/store/mutations-types";
 
 export default {
   name: "Index",
@@ -67,34 +65,48 @@ export default {
   data() {
     return {
       constructor: pizzaConstructorData,
-      pizza: {
-        name: "",
-        sauce: pizzaConstructorData.sauces?.[0]?.code || "",
-        size: pizzaConstructorData.sizes?.[0]?.code || "",
-        dough: pizzaConstructorData.dough?.[0]?.code || "",
-        ingredients: pizzaConstructorData.ingredients.map((ingredient) => ({
-          code: ingredient.code,
-          count: 0,
-        })),
-      },
     };
   },
   methods: {
-    addIngredient(code = "", quantity = 1) {
-      if (!code) return;
-      const ingredient = this.pizza.ingredients.find(
-        (ingredient) => ingredient.code === code
-      );
-      if (!ingredient) return;
-      let newIngredientQuantity = ingredient.count + quantity;
-      if (newIngredientQuantity < 0) newIngredientQuantity = 0;
-      if (newIngredientQuantity > MAX_SAME_INGREDIENT_COUNT)
-        newIngredientQuantity = MAX_SAME_INGREDIENT_COUNT;
+    ...mapMutations("Builder", {
+      updatePizza: UPDATE_PIZZA,
+    }),
+    setPizzaName(name = "") {
+      this.updatePizza({ name });
+    },
+    goCart() {
+      const cartItem = this.getCartPizzaItem(this.pizza.id);
+      const payload = {
+        entity: "pizzaItems",
+        module: "Cart",
+        value: {
+          id: this.pizza.id,
+          count: 1,
+          pizza: this.pizza,
+          price: this.pizzaPrice,
+        },
+      };
 
-      ingredient.count = newIngredientQuantity;
+      if (cartItem) {
+        payload.value = {
+          ...cartItem,
+          ...{ pizza: this.pizza, price: this.pizzaPrice },
+        };
+        this.$store.commit(UPDATE_ENTITY, payload, { root: true });
+      } else {
+        this.$store.commit(ADD_ENTITY, payload, { root: true });
+      }
+
+      this.$router.push({ name: "Cart" });
     },
   },
   computed: {
+    ...mapGetters("Builder", {
+      pizzaPrice: "price",
+    }),
+    ...mapGetters("Cart", {
+      getCartPizzaItem: "cartPizzaItemById",
+    }),
     ingredientSelected() {
       return !!this.pizza.ingredients.find(
         (ingredient) => ingredient.count > 0
@@ -104,6 +116,10 @@ export default {
     readyForOrder() {
       return this.pizza.name.trim() && this.ingredientSelected;
     },
+
+    ...mapState("Builder", {
+      pizza: "pizza",
+    }),
   },
 };
 </script>

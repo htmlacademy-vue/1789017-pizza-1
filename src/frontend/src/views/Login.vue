@@ -21,15 +21,31 @@
             <input type="password" name="pass" placeholder="***********" />
           </label>
         </div>
-        <button type="submit" class="button">Авторизоваться</button>
+        <button type="submit" class="button" @click.prevent="authorize">
+          Авторизоваться
+        </button>
       </form>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions } from "vuex";
+
 export default {
   name: "Login",
+  methods: {
+    ...mapActions("Auth", ["login"]),
+    async authorize() {
+      try {
+        await this.login();
+        this.$router.back();
+      } catch (e) {
+        //todo some err notification
+        console.log(`Error logging in`, e);
+      }
+    },
+  },
 };
 </script>
 
